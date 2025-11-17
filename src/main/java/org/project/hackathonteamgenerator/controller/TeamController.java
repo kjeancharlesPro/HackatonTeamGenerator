@@ -6,6 +6,7 @@ import org.project.hackathonteamgenerator.repository.ParticipantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
@@ -18,7 +19,7 @@ public class TeamController {
     private ParticipantRepository participantRepository;
 
     @GetMapping("/generateTeams/{teamSize}")
-    public List<List<String>> generateTeams(@PathVariable int teamSize) {
+    public List<List<String>> generateTeams(@PathVariable int teamSize, @RequestBody List<String> roleOrder) {
         List<Participant> participants = new ArrayList<>();
 
         participantRepository.findAll().iterator().forEachRemaining(participants::add);
@@ -28,31 +29,31 @@ public class TeamController {
 
         //find remaining size team
         int remainingSize = participants.size() % teamSize;
+        int roleOrderIndex = 0;
 
-//        List<String> roleOrder = List.of("1", "2", "3", "4", "5");
-//        int currentRoleOrder = 0;
-
-        //while the
+        //while there is enough participants
         while(participants.size() > remainingSize) {
 
-            //sorted by role
-
-//            //sturcture exemple 1 > 2 > 3 > 4 > 5
-//            int finalCurrentRoleOrder = currentRoleOrder;
-//            List<Participant> participantsByRole = participants
-//                    .stream()
-//                    .filter(participant -> participant.getRole().equals(roleOrder.get(finalCurrentRoleOrder)))
-//                    .toList();
+            //sort by role
+            int finalCurrentRoleOrder = roleOrderIndex;
+            List<Participant> participantsByRole = participants
+                    .stream()
+                    .filter(participant -> participant.getRole().equals(roleOrder.get(finalCurrentRoleOrder)))
+                    .toList();
 
             //update roleOrder
-//            currentRoleOrder++;
-//            if(currentRoleOrder == roleOrder.size()){
-//                currentRoleOrder = 0;
-//            }
+            roleOrderIndex++;
+            if(roleOrderIndex == roleOrder.size()){
+                roleOrderIndex = 0;
+            }
+
+            //if no participants with role skip
+            if(participantsByRole.isEmpty())
+                continue;
 
             //find random
             Random rand = new Random();
-            Participant randomElement = participants.get(rand.nextInt(participants.size()));
+            Participant randomElement = participantsByRole.get(rand.nextInt(participantsByRole.size()));
 
             //add to team
             team.add(randomElement.getTag());
@@ -66,7 +67,7 @@ public class TeamController {
                 team = new ArrayList<>();
 
                 //reset order
-                //currentRoleOrder = 0;
+                roleOrderIndex = 0;
             }
 
         }

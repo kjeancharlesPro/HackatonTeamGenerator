@@ -16,7 +16,7 @@ public class TeamController {
     @Autowired
     private ParticipantRepository participantRepository;
 
-    @GetMapping("/generateTeams/{teamSize}")
+    @PostMapping("/generateTeams/{teamSize}")
     public List<List<String>> generateTeams(@PathVariable int teamSize, @RequestBody List<String> roleOrder) {
         List<Participant> participants = new ArrayList<>();
 
